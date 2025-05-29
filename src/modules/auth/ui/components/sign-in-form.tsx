@@ -140,7 +140,7 @@ export default function SignInForm() {
             className="w-full"
           >
             {isPending && (
-              <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+              <Loader2Icon className="size-4 animate-spin text-primary-foreground" />
             )}
             <span>Login</span>
           </Button>

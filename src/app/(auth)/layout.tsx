@@ -1,6 +1,4 @@
-export type Props = {
-  children: Readonly<React.ReactNode>;
-};
+import { Props } from '@/utils/props';
 
 export default function Layout({ children }: Props) {
   return (

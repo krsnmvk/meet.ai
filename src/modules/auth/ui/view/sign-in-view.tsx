@@ -9,7 +9,7 @@ export default function SignInView() {
       <Card className="overflow-hidden p-0">
         <CardContent className="grid md:grid-cols-2 p-0">
           <SignInForm />
-          <div className="bg-radial from-green-700 gap-y-4 hidden to-green-900 md:flex flex-col items-center justify-center">
+          <div className="bg-radial from-sidebar-accent gap-y-4 hidden to-sidebar md:flex flex-col items-center justify-center">
             <Image
               src="/logo.svg"
               alt="Logo"
