@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { authClient } from '@/better-auth/auth-client';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function SignInForm() {
   const form = useForm<SignInSchema>({
@@ -35,12 +36,13 @@ export default function SignInForm() {
 
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [sosialPending, setSosialPending] = useState(false);
 
-  function onSubmit(values: SignInSchema) {
+  async function onSubmit(values: SignInSchema) {
     setError(null);
     setIsPending(true);
 
-    authClient.signIn.email(
+    await authClient.signIn.email(
       {
         email: values.email,
         password: values.password,
@@ -49,6 +51,27 @@ export default function SignInForm() {
         onSuccess: () => {
           setIsPending(false);
           router.push('/');
+        },
+        onError: (err) => {
+          setIsPending(false);
+          setError(err.error.message);
+        },
+      }
+    );
+  }
+
+  async function onSosials(provider: 'google' | 'github') {
+    setError(null);
+    setSosialPending(true);
+
+    await authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: '/',
+      },
+      {
+        onSuccess: () => {
+          setIsPending(false);
         },
         onError: (err) => {
           setIsPending(false);
@@ -76,7 +99,7 @@ export default function SignInForm() {
                 <FormLabel>email</FormLabel>
                 <FormControl>
                   <Input
-                    disabled={isPending}
+                    disabled={isPending || sosialPending}
                     type="text"
                     placeholder="jhon@example.com"
                     {...field}
@@ -94,7 +117,7 @@ export default function SignInForm() {
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
-                    disabled={isPending}
+                    disabled={isPending || sosialPending}
                     type="password"
                     placeholder="******"
                     {...field}
@@ -111,7 +134,7 @@ export default function SignInForm() {
             </Alert>
           )}
           <Button
-            disabled={isPending}
+            disabled={isPending || sosialPending}
             type="submit"
             size="lg"
             className="w-full"
@@ -129,7 +152,7 @@ export default function SignInForm() {
               href="/sign-up"
               className={cn(
                 'underline text-blue-500',
-                isPending && 'pointer-events-none'
+                (isPending || sosialPending) && 'pointer-events-none'
               )}
             >
               Sign up
@@ -142,20 +165,22 @@ export default function SignInForm() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Button
-              disabled={isPending}
+              disabled={isPending || sosialPending}
               type="button"
+              onClick={() => onSosials('google')}
               variant="outline"
               className="w-full"
             >
-              Google
+              <Image src="/google.svg" alt="Google" width={20} height={20} />
             </Button>
             <Button
-              disabled={isPending}
+              disabled={isPending || sosialPending}
               type="button"
+              onClick={() => onSosials('github')}
               variant="outline"
               className="w-full"
             >
-              github
+              <Image src="/github.svg" alt="Google" width={20} height={20} />
             </Button>
           </div>
         </div>
