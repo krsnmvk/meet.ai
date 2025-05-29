@@ -38,11 +38,11 @@ export default function SignUpForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
-  function onSubmit(values: SignUpSchema) {
+  async function onSubmit(values: SignUpSchema) {
     setError(null);
     setIsPending(true);
 
-    authClient.signUp.email(
+    await authClient.signUp.email(
       {
         name: values.name,
         email: values.email,
@@ -158,7 +158,7 @@ export default function SignUpForm() {
             {isPending && (
               <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
             )}
-            <span>Login</span>
+            <span>Sign up</span>
           </Button>
           <p className="text-sm">
             <span className="text-muted-foreground">
