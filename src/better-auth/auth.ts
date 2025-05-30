@@ -17,6 +17,16 @@ export const auth = betterAuth({
     },
   }),
 
+  advanced: {
+    defaultCookieAttributes: {
+      httpOnly: true,
+      sameSite: 'Strict',
+      secure: true,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    },
+  },
+
   session: {
     expiresIn: 60 * 60 * 24 * 7,
   },

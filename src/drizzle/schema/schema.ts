@@ -61,7 +61,7 @@ export const verification = pgTable('verification', {
   ),
 });
 
-export const agents = pgTable('agents', {
+export const agentsTable = pgTable('agents', {
   id: text('id')
     .notNull()
     .$defaultFn(() => nanoid())
