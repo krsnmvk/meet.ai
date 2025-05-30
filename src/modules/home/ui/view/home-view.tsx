@@ -1,29 +1,15 @@
 'use client';
 
-import { authClient } from '@/better-auth/auth-client';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useTRPC } from '@/trpc/client';
+import { useQuery } from '@tanstack/react-query';
 
 export default function HomeView() {
-  const { data: session } = authClient.useSession();
-
-  const router = useRouter();
+  const trpc = useTRPC();
+  const { data } = useQuery(trpc.hello.queryOptions({ text: 'Krisno Mukti' }));
 
   return (
-    <div className="p-4">
-      <h4>Logged in as: {session?.user.name}</h4>
-      <Button
-        variant="destructive"
-        onClick={() =>
-          authClient.signOut({
-            fetchOptions: {
-              onSuccess: () => router.push('/sign-in'),
-            },
-          })
-        }
-      >
-        Logout
-      </Button>
+    <div>
+      <h4>Logged in as: {data?.greeting}</h4>
     </div>
   );
 }
