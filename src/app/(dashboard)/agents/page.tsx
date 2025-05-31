@@ -10,8 +10,16 @@ import AgentsListHeader from '@/modules/agents/ui/components/agents-list-header'
 import { auth } from '@/better-auth/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import type { SearchParams } from 'nuqs';
+import { loadSearchParams } from '@/modules/agents/nuqs/use-agents-filters-server';
 
-export default async function Page() {
+type Props = {
+  searchParams: Promise<SearchParams>;
+};
+
+export default async function Page({ searchParams }: Props) {
+  const filters = await loadSearchParams(searchParams);
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -19,7 +27,9 @@ export default async function Page() {
   if (!session) redirect('/sign-in');
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
+  void queryClient.prefetchQuery(
+    trpc.agents.getMany.queryOptions({ ...filters })
+  );
 
   return (
     <>
