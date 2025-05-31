@@ -9,6 +9,7 @@ import { columns } from '../components/column';
 import EmptyState from '@/app/_components/empty-state';
 import { useAgentsFiltersClient } from '../../nuqs/use-agents-filters-client';
 import DataPagination from '../components/data-pagination';
+import { useRouter } from 'next/navigation';
 
 export default function AgentsView() {
   const [filters, setFilters] = useAgentsFiltersClient();
@@ -18,9 +19,15 @@ export default function AgentsView() {
     trpc.agents.getMany.queryOptions({ ...filters })
   );
 
+  const router = useRouter();
+
   return (
     <div className="flex flex-col flex-1 px-4 md:px-8 gap-y-4">
-      <DataTable columns={columns} data={data.items} />
+      <DataTable
+        columns={columns}
+        data={data.items}
+        onRowClick={(row) => router.push(`/agents/${row.id}`)}
+      />
       <DataPagination
         page={filters.page}
         totalPages={data.totalPages}
@@ -39,7 +46,7 @@ export default function AgentsView() {
 export function AgentsViewLoading() {
   return (
     <LoadingState
-      title="Loading Agents"
+      title="Loading Agent"
       description="This may take a fews seconds"
     />
   );
@@ -48,7 +55,7 @@ export function AgentsViewLoading() {
 export function AgentsViewError() {
   return (
     <ErrorState
-      title="Error Loading Agents"
+      title="Error Loading Agent"
       description="Something wen't wrong"
     />
   );
