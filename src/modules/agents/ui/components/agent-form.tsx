@@ -23,46 +23,66 @@ import { toast } from 'sonner';
 type Props = {
   onSuccess?: () => void;
   onCancel?: () => void;
-  initialValue?: AgentGetOne;
+  initialValues?: AgentGetOne;
 };
 
 export default function AgentForm({
-  initialValue,
+  initialValues,
   onCancel,
   onSuccess,
 }: Props) {
   const form = useForm<AgentsSchema>({
     resolver: zodResolver(agentsSchema),
     defaultValues: {
-      intructions: initialValue?.intructions ?? '',
-      name: initialValue?.name ?? '',
+      intructions: initialValues?.intructions ?? '',
+      name: initialValues?.name ?? '',
     },
   });
 
   const queryClient = useQueryClient();
   const trpc = useTRPC();
-  const { mutate, isPending } = useMutation(
+  const { mutate: mutateCreate, isPending: isPendingCreate } = useMutation(
     trpc.agents.create.mutationOptions()
   );
 
-  const isEdit = !!initialValue?.id;
+  const { mutate: mutateUpdate, isPending: isPendingUpdate } = useMutation(
+    trpc.agents.update.mutationOptions()
+  );
+
+  const isEdit = !!initialValues?.id;
 
   function onSubmit(values: AgentsSchema) {
     if (isEdit) {
-      console.log('TODO: update agent');
-    } else {
-      mutate(values, {
-        onSuccess: async () => {
-          if (initialValue?.id) {
-            await queryClient.invalidateQueries(
-              trpc.agents.getOne.queryOptions({ id: initialValue.id })
-            );
-          } else {
-            await queryClient.invalidateQueries(
-              trpc.agents.getMany.queryOptions({})
-            );
-          }
+      mutateUpdate(
+        { ...values, id: initialValues.id },
+        {
+          onSuccess: async () => {
+            if (initialValues?.id) {
+              await queryClient.invalidateQueries(
+                trpc.agents.getOne.queryOptions({ id: initialValues.id })
+              );
+            } else {
+              await queryClient.invalidateQueries(
+                trpc.agents.getMany.queryOptions({})
+              );
+            }
 
+            toast.success('Agent created');
+
+            onSuccess?.();
+          },
+
+          onError: (err) => {
+            toast.error(err.message);
+          },
+        }
+      );
+    } else {
+      mutateCreate(values, {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(
+            trpc.agents.getMany.queryOptions({})
+          );
           toast.success('Agent created');
 
           onSuccess?.();
@@ -92,7 +112,7 @@ export default function AgentForm({
               <FormControl>
                 <Input
                   type="text"
-                  disabled={isPending}
+                  disabled={isPendingCreate || isPendingUpdate}
                   placeholder="e.g. Math Tutor"
                   {...field}
                 />
@@ -109,7 +129,7 @@ export default function AgentForm({
               <FormLabel>Intructions</FormLabel>
               <FormControl>
                 <Textarea
-                  disabled={isPending}
+                  disabled={isPendingCreate || isPendingUpdate}
                   cols={5}
                   placeholder="You are a helpful math assistant that can answer questions and help with assingments"
                   {...field}
@@ -123,14 +143,14 @@ export default function AgentForm({
           {onCancel && (
             <Button
               type="button"
-              disabled={isPending}
+              disabled={isPendingCreate || isPendingUpdate}
               onClick={() => onCancel()}
               variant="ghost"
             >
               Cancel
             </Button>
           )}
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPendingCreate || isPendingUpdate}>
             {isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
