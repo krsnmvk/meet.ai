@@ -10,4 +10,8 @@ export const agentsSchema = z.object({
     .trim(),
 });
 
+export const agentsUpdateSchema = agentsSchema.extend({
+  id: z.string().min(1, { message: 'ID must be at least 1 haracters long' }),
+});
+
 export type AgentsSchema = z.infer<typeof agentsSchema>;
